@@ -12,7 +12,7 @@ def parse_channel_id(env_var: str, default: str) -> int:
 
 SOURCE_CHANNEL_ID = parse_channel_id('SOURCE_CHANNEL_ID', '-1002682552255')
 
-PREDICTION_CHANNEL_ID = parse_channel_id('PREDICTION_CHANNEL_ID', '-1001626824569')
+PREDICTION_CHANNEL_ID = parse_channel_id('PREDICTION_CHANNEL_ID', '-1002338377421')
 
 ADMIN_ID = int(os.getenv('ADMIN_ID') or '0')
 
@@ -20,7 +20,7 @@ API_ID = int(os.getenv('API_ID') or '0')
 API_HASH = os.getenv('API_HASH') or ''
 BOT_TOKEN = os.getenv('BOT_TOKEN') or ''
 
-PORT = int(os.getenv('PORT') or '10000')  # Port 10000 pour Render.com
+PORT = int(os.getenv('PORT') or '5000')  # Port 5000 for Replit
 
 SUIT_MAPPING = {
     '♠️': '❤️',

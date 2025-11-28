@@ -21,6 +21,6 @@ services:
       - key: SOURCE_CHANNEL_ID
         value: -1002682552255
       - key: PREDICTION_CHANNEL_ID
-        value: -1001626824569
+        value: -1002338377421
       - key: TELEGRAM_SESSION
         sync: false
