@@ -22,23 +22,24 @@ BOT_TOKEN = os.getenv('BOT_TOKEN') or ''
 
 PORT = int(os.getenv('PORT') or '5000')  # Port 5000 for Replit
 
+# --- Mapping des Couleurs pour la Règle de Prédiction ---
+# Logique: {Couleur Manquante: Couleur Prédite}
+# Les clés/valeurs sont les symboles Unicode normalisés ('♥', '♠', '♦', '♣')
 SUIT_MAPPING = {
-    '♠️': '❤️',
-    '♠': '❤️',
-    '❤️': '♠️',
-    '❤': '♠️',
-    '♥️': '♠️',
-    '♥': '♠️',
-    '♣️': '♦️',
-    '♣': '♦️',
-    '♦️': '♣️',
-    '♦': '♣️'
+    '♠': '♦',  # Si Pique manque, prédire Carreau
+    '♦': '♠',  # Si Carreau manque, prédire Pique
+    '♣': '♥',  # Si Trèfle manque, prédire Coeur
+    '♥': '♣',  # Si Coeur manque, prédire Trèfle
 }
 
-ALL_SUITS = ['♠', '♥', '♦', '♣']
+# --- Définitions de Couleurs ---
+# Liste des symboles normalisés pour la vérification
+ALL_SUITS = ['♥', '♠', '♦', '♣']
+
+# Mapping pour l'affichage des couleurs dans les messages (symbole normalisé -> symbole complet)
 SUIT_DISPLAY = {
     '♠': '♠️',
-    '♥': '❤️',
+    '♥': '♥️',
     '♦': '♦️',
     '♣': '♣️'
 }
