@@ -7,30 +7,14 @@ from datetime import datetime, timedelta, timezone, time
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 from aiohttp import web
+# --- IMPORTATION DE LA CONFIGURATION (CORRECTION) ---
+from config import (
+    API_ID, API_HASH, BOT_TOKEN, ADMIN_ID,
+    SOURCE_CHANNEL_ID, PREDICTION_CHANNEL_ID, PORT,
+    SUIT_MAPPING, ALL_SUITS, SUIT_DISPLAY
+)
 
-# --- Configuration (Simulez ici le contenu de config.py) ---
-# **ATTENTION** : REMPLACER CES VALEURS PAR VOS VRAIES CLÉS ET ID !
-API_ID = 12345678    
-API_HASH = "VOTRE_API_HASH" 
-BOT_TOKEN = "VOTRE_BOT_TOKEN"
-ADMIN_ID = 987654321
-SOURCE_CHANNEL_ID = -1001234567890
-PREDICTION_CHANNEL_ID = -1001987654321
-PORT = 8080 
-
-# NOUVEAU MAPPING : Manquante -> Prédite
-SUIT_MAPPING = {
-    '♠': '♦',  # Si Pique manque, prédire Carreau
-    '♦': '♠',  # Si Carreau manque, prédire Pique
-    '♣': '♥',  # Si Trèfle manque, prédire Coeur
-    '♥': '♣',  # Si Coeur manque, prédire Trèfle
-}
-
-ALL_SUITS = ['♥', '♠', '♦', '♣'] 
-# Mapping d'affichage pour les symboles (utilisé dans le message de prédiction)
-SUIT_DISPLAY = {'♥': '♥️', '♠': '♠️', '♦': '♦️', '♣': '♣️'} 
-
-# --- Constantes Globales Mises à Jour ---
+# --- Constantes Globales Mises à Jour (Maintenues de main (9).py) ---
 MAX_PENDING_PREDICTIONS = 2  
 PROXIMITY_THRESHOLD = 10     # Seuil pour N+18 (pour commencer à envoyer la prédiction)
 PREDICTION_OFFSET = 18       # DÉCALAGE MIS À JOUR : N+1 -> Prédire N + 18
@@ -49,11 +33,12 @@ logger = logging.getLogger(__name__)
 if not API_ID or API_ID == 0:
     logger.error("API_ID manquant")
     exit(1)
-if not API_HASH or API_HASH == "VOTRE_API_HASH":
-    logger.error("API_HASH manquant ou non mis à jour")
+# 🚨 CORRECTION: La vérification ne doit plus échouer sur un placeholder spécifique
+if not API_HASH:
+    logger.error("API_HASH manquant")
     exit(1)
-if not BOT_TOKEN or BOT_TOKEN == "VOTRE_BOT_TOKEN":
-    logger.error("BOT_TOKEN manquant ou non mis à jour")
+if not BOT_TOKEN:
+    logger.error("BOT_TOKEN manquant")
     exit(1)
 
 logger.info(f"Configuration: SOURCE_CHANNEL={SOURCE_CHANNEL_ID}, PREDICTION_CHANNEL={PREDICTION_CHANNEL_ID}")
