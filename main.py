@@ -17,7 +17,7 @@ from config import (
 # --- Constantes Globales Mises à Jour (Maintenues de main (9).py) ---
 MAX_PENDING_PREDICTIONS = 2  
 PROXIMITY_THRESHOLD = 10     # Seuil pour N+18 (pour commencer à envoyer la prédiction)
-PREDICTION_OFFSET = 18       # DÉCALAGE MIS À JOUR : N+1 -> Prédire N + 18
+PREDICTION_OFFSET = 17       # DÉCALAGE MIS À JOUR : N+1 -> Prédire N + 18
 
 # --- Configuration et Initialisation ---
 logging.basicConfig(
