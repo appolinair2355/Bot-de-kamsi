@@ -271,7 +271,7 @@ async def check_prediction_result(game_number: int, first_group: str):
 def check_new_rule_prediction(current_game: int, first_group: str):
     """
     NOUVELLE RÈGLE: Vérifie le jeu N-1 (N) et le jeu actuel (N+1) pour la condition d'union.
-    Déclenche la prédiction pour N+1 + 18.
+    Déclenche la prédiction pour N+1 + 17.
     """
     prev_game = current_game - 1
     
@@ -296,7 +296,7 @@ def check_new_rule_prediction(current_game: int, first_group: str):
         # 6. Appliquer le mapping
         predicted_suit = get_predicted_suit(missing_suit_raw) 
         
-        # 7. Définir le jeu cible à N+1 + 18
+        # 7. Définir le jeu cible à N+1 + 17
         target_game = current_game + PREDICTION_OFFSET 
         
         if target_game not in pending_predictions and target_game not in queued_predictions:
