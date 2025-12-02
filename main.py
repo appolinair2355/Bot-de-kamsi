@@ -16,8 +16,8 @@ from config import (
 
 # --- Constantes Globales Mises à Jour ---
 MAX_PENDING_PREDICTIONS = 2  
-PROXIMITY_THRESHOLD = 10     # Seuil pour N+17 (pour commencer à envoyer la prédiction)
-PREDICTION_OFFSET = 16       # DÉCALAGE MIS À JOUR : N+1 -> Prédire N + 16 (Total N+17)
+PROXIMITY_THRESHOLD = 10     # Seuil pour commencer à envoyer la prédiction
+PREDICTION_OFFSET = 15       # MODIFIÉ : Cible le jeu N + 15 
 
 # --- Configuration et Initialisation ---
 logging.basicConfig(
@@ -33,7 +33,6 @@ logger = logging.getLogger(__name__)
 if not API_ID or API_ID == 0:
     logger.error("API_ID manquant")
     exit(1)
-# 🚨 CORRECTION: La vérification ne doit plus échouer sur un placeholder spécifique
 if not API_HASH:
     logger.error("API_HASH manquant")
     exit(1)
@@ -96,7 +95,7 @@ async def send_prediction_to_channel(target_game: int, predicted_suit: str, base
         # La couleur de backup est la couleur alternative selon le mapping
         alternate_suit = get_predicted_suit(predicted_suit) 
 
-        # Le backup est +16 jeux après le jeu cible
+        # Le backup est +15 jeux après le jeu cible
         backup_game = target_game + PREDICTION_OFFSET 
 
         display_suit = SUIT_DISPLAY.get(predicted_suit, predicted_suit)
@@ -202,7 +201,7 @@ async def update_prediction_status(game_number: int, new_status: str):
         logger.info(f"Prédiction #{game_number} mise à jour: {new_status}")
 
         # Les prédictions terminées sont supprimées du stock actif
-        if new_status in ['✅0️⃣', '✅1️⃣', '✅2️⃣', '❌']: # <--- MODIFIÉ pour inclure ✅2️⃣
+        if new_status in ['✅0️⃣', '✅1️⃣', '✅2️⃣', '❌']:
             del pending_predictions[game_number]
             logger.info(f"Prédiction #{game_number} terminée et supprimée")
 
@@ -255,7 +254,7 @@ async def check_prediction_result(game_number: int, first_group: str):
                 pred['check_count'] = 2
                 return False
 
-    # 3. Vérification du jeu N-2 (Jeu Cible N-2 - c'est la 3ème chance pour cette prédiction) <-- NOUVEAU
+    # 3. Vérification du jeu N-2 (Jeu Cible N-2 - c'est la 3ème chance pour cette prédiction)
     prev_prev_game = game_number - 2
     if prev_prev_game in pending_predictions:
         pred = pending_predictions[prev_prev_game]
@@ -264,7 +263,7 @@ async def check_prediction_result(game_number: int, first_group: str):
             target_suit = pred['suit']
             
             if target_suit in suits_present:
-                await update_prediction_status(prev_prev_game, '✅2️⃣') # <--- NOUVEAU STATUT DE SUCCÈS
+                await update_prediction_status(prev_prev_game, '✅2️⃣')
                 return True
             else:
                 # Échec final (N, N+1, N+2) -> Envoi du backup
@@ -287,8 +286,8 @@ async def check_prediction_result(game_number: int, first_group: str):
 
 def check_new_rule_prediction(current_game: int, first_group: str):
     """
-    MODIFICATION NOMENCLATURE: Vérifie le jeu N-1 (précédent) et le jeu actuel (N) pour la condition d'union.
-    Déclenche la prédiction pour N + 16 (N + PREDICTION_OFFSET).
+    Vérifie le jeu N-1 (précédent) et le jeu actuel (N) pour la condition d'union.
+    Déclenche la prédiction pour N + 15 (N + PREDICTION_OFFSET).
     """
     # current_game est le JEU N (le message dont le résultat vient d'arriver)
     # prev_game est le JEU N-1 (le jeu stocké précédemment)
@@ -315,7 +314,7 @@ def check_new_rule_prediction(current_game: int, first_group: str):
         # 6. Appliquer le mapping
         predicted_suit = get_predicted_suit(missing_suit_raw) 
         
-        # 7. Définir le jeu cible à N + 16
+        # 7. Définir le jeu cible à N + 15
         target_game = current_game + PREDICTION_OFFSET 
         
         if target_game not in pending_predictions and target_game not in queued_predictions:
@@ -484,7 +483,7 @@ async def cmd_debug(event):
         await event.respond("Commande réservée à l'administrateur")
         return
 
-    debug_msg = f"""🔍 **Informations de débogage:**\n\n**Configuration:**\n• Source Channel: {SOURCE_CHANNEL_ID}\n• Prediction Channel: {PREDICTION_CHANNEL_ID}\n• Admin ID: {ADMIN_ID}\n\n**Accès aux canaux:**\n• Canal source: {'✅ OK' if source_channel_ok else '❌ Non accessible'}\n• Canal prédiction: {'✅ OK' if prediction_channel_ok else '❌ Non accessible'}\n\n**État:**\n• Jeu actuel: #{current_game_number}\n• Prédictions actives: {len(pending_predictions)}\n• En file d'attente: {len(queued_predictions)}\n• Offset Prédiction: +{PREDICTION_OFFSET} (Cible N+17)\n• Seuil de proximité: {PROXIMITY_THRESHOLD}\n• Reset Quotidien: 00h59 WAT\n"""
+    debug_msg = f"""🔍 **Informations de débogage:**\n\n**Configuration:**\n• Source Channel: {SOURCE_CHANNEL_ID}\n• Prediction Channel: {PREDICTION_CHANNEL_ID}\n• Admin ID: {ADMIN_ID}\n\n**Accès aux canaux:**\n• Canal source: {'✅ OK' if source_channel_ok else '❌ Non accessible'}\n• Canal prédiction: {'✅ OK' if prediction_channel_ok else '❌ Non accessible'}\n\n**État:**\n• Jeu actuel: #{current_game_number}\n• Prédictions actives: {len(pending_predictions)}\n• En file d'attente: {len(queued_predictions)}\n• Offset Prédiction: +{PREDICTION_OFFSET} (Cible N+15)\n• Seuil de proximité: {PROXIMITY_THRESHOLD}\n• Reset Quotidien: 00h59 WAT\n"""
     await event.respond(debug_msg)
 
 @client.on(events.NewMessage(pattern='/checkchannels'))
@@ -520,7 +519,7 @@ async def cmd_help(event):
     
     mapping_str = ", ".join([f"{k} (manquant) -> {v} (prédit)" for k, v in SUIT_MAPPING.items()])
     
-    await event.respond(f"""📖 **Aide - Bot de Prédiction**\n\n**Règles de prédiction (Union N-1 et N):**\n• Condition: L'union des couleurs du 1er groupe de **JEU N-1** et **JEU N** doit avoir **EXACTEMENT 3 couleurs**.\n• Mapping (Couleur manquante \rightarrow Prédite) : {mapping_str}\n• Prédit: Jeu **N + {PREDICTION_OFFSET}** (Cible N+17) avec la couleur mappée.\n\n**Vérification de Résultat (Triple Chance):**\n• Le bot vérifie la couleur prédite sur le Jeu Cible (✅0️⃣), puis sur le Jeu Cible + 1 (✅1️⃣), puis sur le Jeu Cible + 2 (✅2️⃣).\n• Si les trois vérifications échouent, le statut est ❌ et un Backup est envoyé.\n\n**Maintenance:**\n• Reset Quotidien: Toutes les données sont effacées à **00h59 WAT** pour un redémarrage à zéro.\n""")
+    await event.respond(f"""📖 **Aide - Bot de Prédiction**\n\n**Règles de prédiction (Union N-1 et N):**\n• Condition: L'union des couleurs du 1er groupe de **JEU N-1** et **JEU N** doit avoir **EXACTEMENT 3 couleurs**.\n• Mapping (Couleur manquante \rightarrow Prédite) : {mapping_str}\n• Prédit: Jeu **N + {PREDICTION_OFFSET}** (Cible N+15) avec la couleur mappée.\n\n**Vérification de Résultat (Triple Chance):**\n• Le bot vérifie la couleur prédite sur le Jeu Cible (✅0️⃣), puis sur le Jeu Cible + 1 (✅1️⃣), puis sur le Jeu Cible + 2 (✅2️⃣).\n• Si les trois vérifications échouent, le statut est ❌ et un Backup est envoyé.\n\n**Maintenance:**\n• Reset Quotidien: Toutes les données sont effacées à **00h59 WAT** pour un redémarrage à zéro.\n""")
 
 
 # --- Serveur Web et Démarrage ---
